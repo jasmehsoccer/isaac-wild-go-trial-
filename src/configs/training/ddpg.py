@@ -1,16 +1,18 @@
-"""Configuration for trotting"""
+"""Configuration for DDPG Policy"""
 from ml_collections import ConfigDict
 
-from src.envs.configs import trot
-from src.envs import jump_env
+from src.envs import go2_trot_env
+import torch
+import numpy as np
 
 
 def get_training_config():
+    """Config for training"""
     config = ConfigDict()
     config.seed = 1
 
     policy_config = ConfigDict()
-    policy_config.init_noise_std = .1
+    policy_config.init_noise_std = .5
     policy_config.actor_hidden_dims = [512, 256, 128]
     policy_config.critic_hidden_dims = [512, 256, 128]
     policy_config.activation = "elu"
@@ -33,18 +35,10 @@ def get_training_config():
 
     runner_config = ConfigDict()
     runner_config.policy_class_name = "ActorCritic"
-    runner_config.algorithm_class_name = "PPO"
+    runner_config.algorithm_class_name = "DDPG"
     runner_config.num_steps_per_env = 24
     runner_config.save_interval = 50
-    runner_config.experiment_name = "pronk_cajun"
+    runner_config.experiment_name = "ddpg_trot"
     runner_config.max_iterations = 500
     config.runner = runner_config
-    return config
-
-
-def get_config():
-    config = ConfigDict()
-    config.training = get_training_config()
-    config.env_class = jump_env.JumpEnv
-    config.environment = trot.get_config()
     return config

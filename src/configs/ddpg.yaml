@@ -43,5 +43,5 @@ agents:
     experience_prefill_size: 512
 
   # Checkpoint
-  checkpoint: 'logs/train/pronk_cajun/friction_0.7_delay_vel_0.6_sub_optimal1_best'
+  checkpoint: 'logs/train/pretrained_policy'
 
