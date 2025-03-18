@@ -144,9 +144,9 @@ handling unforeseen incidents arising from unknown environments.
 python -m src.scripts.ddpg.eval --logdir=logs/train/ddpg_trot/demo --num_envs=1 --use_gpu=True --enable_ha_teacher=True
 ```
 
-| Real-Time Patch (under random push)                     | Fixed Robot Model                                          |
-|---------------------------------------------------------|------------------------------------------------------------|
-| <img src="./docs/rt_patch.gif" height="320" alt="rlm"/> | <img src="./docs/fixed_model.gif" height="320" alt="rlm"/> |
+| Real-Time Patch (under random push)                         | Fixed Robot Model                                          |
+|-------------------------------------------------------------|------------------------------------------------------------|
+| <img src="./docs/rlm_go2_push.gif" height="240" alt="rlm"/> | <img src="./docs/fixed_model.gif" height="240" alt="rlm"/> |
 
 
 [//]: # (<p align="center">)
