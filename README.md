@@ -29,7 +29,7 @@ IsaacGym. In this framework, a closed-loop system is established for the quadrup
 1. Clone this repository:
 
 ```bash
-git clone git@github.com:Charlescai123/isaac-runtime-go2.git
+git clone git@github.com:Charlescai123/isaac-wild-go2.git
 ```
 
 2. Create the conda environment with:
@@ -144,10 +144,18 @@ handling unforeseen incidents arising from unknown environments.
 python -m src.scripts.ddpg.eval --logdir=logs/train/ddpg_trot/demo --num_envs=1 --use_gpu=True --enable_ha_teacher=True
 ```
 
-<p align="center">
- <img src="./docs/rlm_go2.gif" height="440" alt="rlm"/> 
- <br><b>Fig 2. Runtime Learning Machine on Quadruped Go2 in unforeseen Environment</b>
-</p>
+| Real-Time Patch (under random push)                     | Fixed Robot Model                                          |
+|---------------------------------------------------------|------------------------------------------------------------|
+| <img src="./docs/rt_patch.gif" height="320" alt="rlm"/> | <img src="./docs/fixed_model.gif" height="320" alt="rlm"/> |
+
+
+[//]: # (<p align="center">)
+
+[//]: # ( <img src="./docs/rlm_go2.gif" height="440" alt="rlm"/> )
+
+[//]: # ( <br><b>Fig 2. Runtime Learning Machine on Quadruped Go2 in unforeseen Environment</b>)
+
+[//]: # (</p>)
 
 2. To validate the safety performance of **Runtime Learning Machine** under random push, run command:
 

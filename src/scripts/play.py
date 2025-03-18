@@ -265,7 +265,8 @@ def main(argv):
                      foot_positions_in_base_frame=robot.foot_positions_in_base_frame,
                      # env_action=drl_action,
                      # env_obs=torch.clone(self._obs_buf)
-                     ))
+                     )
+            )
 
             robot.step(motor_action)
 
@@ -287,15 +288,18 @@ def main(argv):
                 pickle.dump(logs, fh)
             print(f"Data logged to: {output_path}")
 
-
-        import pdb
-        pdb.set_trace()
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        out = cv2.VideoWriter("output.avi", fourcc, 30, (480, 640))
-        out2 = cv2.VideoWriter("output2.avi", fourcc, 30, (480, 640))
+        # import pdb
+        # pdb.set_trace()
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter("output.mp4", fourcc, 30, (640, 480))
+        out2 = cv2.VideoWriter("output2.mp4", fourcc, 30, (640, 480))
         for i in range(len(robot._rgb_frames)):
             out.write(robot._rgb_frames[i])
-            # out2.write(robot._dep_frames[i])
+            # max_depth = 10.0
+            # depth_map = robot._dep_frames[i]
+            # depth_normalized = (depth_map / max_depth * 255).astype(np.uint8)
+            out2.write(robot._dep_frames[i])
+            # out2.write(depth_normalized)
         out.release()
         out2.release()
         cv2.destroyAllWindows()

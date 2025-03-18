@@ -21,6 +21,7 @@ class RGBDCamera:
                  viewer: Any,
                  attached_rigid_body_index_in_env,
                  resolution=(640, 480)):
+        # resolution=(1920, 1080)):
 
         self._robot = robot
         self._sim = sim
@@ -32,6 +33,7 @@ class RGBDCamera:
         self._attached_rigid_body = attached_rigid_body_index_in_env
         self._camera_handle = self.add_camera()
         self._camera_handle2 = self.add_dog_camera()
+        self._img_save_folder = f"data"
 
         self._video_cnt = 0
         self._frame_cnt = 0
@@ -43,7 +45,7 @@ class RGBDCamera:
         self._gym.start_access_image_tensors(self._sim)
 
         color_image = self._gym.get_camera_image(self._sim, self._env_handle, self._camera_handle, gymapi.IMAGE_COLOR)
-        _depth_img = self._gym.get_camera_image(self._sim, self._env_handle, self._camera_handle, gymapi.IMAGE_DEPTH)
+        depth_image = self._gym.get_camera_image(self._sim, self._env_handle, self._camera_handle, gymapi.IMAGE_DEPTH)
 
         self._gym.end_access_image_tensors(self._sim)
 
@@ -75,41 +77,61 @@ class RGBDCamera:
         camera_props.enable_tensors = True  # Enable tensor output for the camera
         camera_props.near_plane = 0.1  # Minimum distance
         camera_props.far_plane = 10.0  # Maximum distance
-        camera_horizontal_fov = 90
+        camera_horizontal_fov = 87
         camera_props.horizontal_fov = camera_horizontal_fov
         camera_handle = self._gym.create_camera_sensor(self._env_handle, camera_props)
         camera_pos = [0.235, 0, 0.02]
+        # camera_pos = [0.235, 0, 0.5]
 
         local_transform = gymapi.Transform()
         local_transform.p = gymapi.Vec3(*camera_pos)
-        # local_transform.r = gymapi.Quat.from_axis_angle(gymapi.Vec3(0, 1, 0), np.radians(30.0))
+        # local_transform.r = gymapi.Quat.from_axis_angle(gymapi.Vec3(0, 1, 0), np.radians(25.0))
         self._gym.attach_camera_to_body(camera_handle, self._env_handle, self._attached_rigid_body, local_transform,
                                         gymapi.FOLLOW_TRANSFORM)
         return camera_handle
 
     def get_current_frame(self, img_save=True, img_show=True):
-
+        # import pdb
+        # pdb.set_trace()
         self._gym.render_all_camera_sensors(self._sim)
         self._gym.start_access_image_tensors(self._sim)
-
         color_img = self._gym.get_camera_image(self._sim, self._env_handle, self._camera_handle2, gymapi.IMAGE_COLOR)
         depth_img = self._gym.get_camera_image(self._sim, self._env_handle, self._camera_handle2, gymapi.IMAGE_DEPTH)
-
-        rgba_image = np.frombuffer(color_img, dtype=np.uint8).reshape(self._img_height, self._img_width, 4)
-        rgb_image = rgba_image[:, :, :3]
-
         self._gym.end_access_image_tensors(self._sim)
 
+        # Processing the color image
+        rgba_image = np.frombuffer(color_img, dtype=np.uint8).reshape(self._img_height, self._img_width, 4)
+        rgb_image = rgba_image[:, :, :3]
         rgb_img = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
+
+        # Processing the depth image
+        depth_mask = depth_img == -np.inf
         depth_img = self.replace_inf_with_second_smallest(depth_img)
         depth_normalized = cv2.normalize(depth_img, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
+
         depth_colored = cv2.applyColorMap(depth_normalized, cv2.COLORMAP_JET)
+
+        depth_colored = np.zeros((*depth_img.shape, 3), dtype=np.uint8)
+        depth_colored[depth_mask] = cv2.applyColorMap(depth_normalized[depth_mask], cv2.COLORMAP_JET).reshape(-1, 3)
 
         # Show image flag
         if img_show:
             cv2.imshow('RGB Image', rgb_img)
             cv2.imshow('Depth Image', depth_normalized)
-            # cv2.imshow('Depth Color Image', depth_colored)
+            cv2.imshow('Depth Color Image', depth_colored)
+
+        # Save image
+        if img_save:
+            rgb_folder = f"{self._img_save_folder}/rgb"  # RGB
+            depth_folder = f"{self._img_save_folder}/depth"  # Depth
+            depth_color_folder = f"{self._img_save_folder}/depth_color"  # Depth Color
+            os.makedirs(rgb_folder, exist_ok=True)
+            os.makedirs(depth_folder, exist_ok=True)
+            os.makedirs(depth_color_folder, exist_ok=True)
+            cv2.imwrite(f'{rgb_folder}/rgb_{self._video_cnt}.png', rgb_img)
+            cv2.imwrite(f'{depth_folder}/depth_{self._video_cnt}.png', depth_normalized)
+            cv2.imwrite(f'{depth_color_folder}/depth_color_{self._video_cnt}.png', depth_colored)
+            self._video_cnt += 1
 
         # combined_image = np.hstack((rgb_img, depth_colored))
         # cv2.imshow('Image', combined_image)
@@ -120,7 +142,7 @@ class RGBDCamera:
             np.savetxt('depth_error.txt', depth_img)
 
         self._frame_cnt += 1
-        return rgb_img, depth_img
+        return rgb_img, depth_normalized
 
     def replace_inf_with_second_smallest(self, depth_image):
         """
@@ -150,6 +172,7 @@ class RGBDCamera:
 
         # The second smallest value
         second_smallest = unique_values[1]
+        # second_smallest = -255
 
         # Replace `inf` values with the second-smallest value
         result = np.copy(depth_image)

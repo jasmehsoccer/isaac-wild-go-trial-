@@ -11,10 +11,11 @@ unitree_rl_gym/
 corl_figs/
 corl_ckpts/
 *.pkl
+*.py
 
 # C extensions
+*.so
 
-*.bak
 # Distribution / packaging
 .Python
 data/

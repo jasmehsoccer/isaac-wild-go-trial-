@@ -668,30 +668,6 @@ class Robot:
                 if evt.action == "toggle_viewer_sync" and evt.value > 0:
                     self.enable_viewer_sync = not self.enable_viewer_sync
 
-                if not self.free_cam:
-                    for i in range(9):
-                        if evt.action == "lookat" + str(i) and evt.value > 0:
-                            # self.lookat(i)
-                            self.lookat_id = i
-                    if evt.action == "prev_id" and evt.value > 0:
-                        self.lookat_id = (self.lookat_id - 1) % self.num_envs
-                        # self.lookat(self.lookat_id)
-                    if evt.action == "next_id" and evt.value > 0:
-                        self.lookat_id = (self.lookat_id + 1) % self.num_envs
-                        # self.lookat(self.lookat_id)
-                    if evt.action == "vx_plus" and evt.value > 0:
-                        self.commands[self.lookat_id, 0] += 0.2
-                    if evt.action == "vx_minus" and evt.value > 0:
-                        self.commands[self.lookat_id, 0] -= 0.2
-                    if evt.action == "left_turn" and evt.value > 0:
-                        self.commands[self.lookat_id, 3] += 0.5
-                    if evt.action == "right_turn" and evt.value > 0:
-                        self.commands[self.lookat_id, 3] -= 0.5
-                if evt.action == "free_cam" and evt.value > 0:
-                    self.free_cam = not self.free_cam
-                    if self.free_cam:
-                        self.set_camera(self.cfg.viewer.pos, self.cfg.viewer.lookat)
-
                 if evt.action == "pause" and evt.value > 0:
                     self.pause = True
                     while self.pause:
@@ -728,5 +704,5 @@ class Robot:
             # Record a video or not
             if self.record_video:
                 rgb_img, depth_img = self._camera_sensors[0].get_current_frame()
-                self._rgb_frames.append(rgb_img)        # RGB Frame
-                self._dep_frames.append(depth_img)      # Depth Frame
+                self._rgb_frames.append(rgb_img)  # RGB Frame
+                self._dep_frames.append(depth_img)  # Depth Frame
