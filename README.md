@@ -84,22 +84,21 @@ cd extern/rsl_rl && pip install -e .
 
 ### 📍 Navigation
 
-**Map Generation Pipeline:** Exterioception (Depth) ➡️ BEV Map ➡️ Occupancy Map ➡️ Cost Map
+**Map Generation Pipeline:** Exterioception (Depth) ➡ BEV Map ➡ Occupancy Map ➡ Cost Map
 
 | BEV Map                                      | Occupancy Map                                      | Cost Map                                     |
 |----------------------------------------------|----------------------------------------------------|----------------------------------------------|
 | <img src="./docs/bev_map.png" height="330"/> | <img src="./docs/occupancy_map.png" height="330"/> | <img src="./docs/costmap.png" height="330"/> |
 
-Quadruped navigates through the wild environment alongside all the waypoints:
+The quadruped robot navigates through the wild environment alongside all the waypoints:
 
 ```bash
-python -m src.scripts.play --use_gpu=True --total_time_secs=50
+python -m src.scripts.play --use_gpu=True --show_gui=True --num_envs=1
 ```
 
-| Navigating in the Wild Environment                 | Depth Camera Image                                   |
-|----------------------------------------------------|------------------------------------------------------|
-| <img src="./docs/nav.gif" height="245" alt="rlm"/> | <img src="./docs/depth.gif" height="245" alt="rlm"/> |
-
+| Navigate in the Wild          | RGB Camera Image                           | Depth Camera Image                          |
+|-------------------------------|--------------------------------------------|---------------------------------------------|
+| <img src="./docs/nav.gif" alt="rlm"/> | <img src="./docs/nav_rgb.gif"  alt="rlm"/> | <img src="./docs/nav_depth.gif" alt="rlm"/> |
 
 ### 🦿 Locomotion
 
@@ -121,13 +120,12 @@ A key objective of this framework is to ensure the robot's safety during runtime
 hybrid control system with a switching mechanism design:
 
 🔹 when the robot base turns **Blue** ➡️ robot is controlled by **HP-Student**.
-  
+
 🔺 when the robot base turns **Red** ➡️ robot is controller by **HA-Teacher**.
 
 | With Runtime-Learning Framework                         | Without the Framework                                 |
    |---------------------------------------------------------|-------------------------------------------------------|
 | <img src="./docs/with-rlm.gif" height="245" alt="rlm"/> | <img src="./docs/wo-rlm.gif" height="245" alt="rlm"/> |
-
 
 #### ️2️⃣ **Compare with Other Model-based Controller**
 
@@ -144,9 +142,11 @@ on wild, uneven terrain is demonstrated:
 [//]: # (- **Runtime Learning:**)
 
 [//]: # ()
+
 [//]: # (The **Runtime Learning Machine** facilitates the rapid adaptation of the quadrupedal Go2 robot to unseen environments:)
 
 [//]: # ()
+
 [//]: # (```bash)
 
 [//]: # (python -m src.scripts.ddpg.train --use_gpu=True --enable_ha_teacher=True)

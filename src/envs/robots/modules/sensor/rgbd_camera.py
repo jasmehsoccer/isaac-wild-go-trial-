@@ -20,8 +20,8 @@ class RGBDCamera:
                  env: Any,
                  viewer: Any,
                  attached_rigid_body_index_in_env,
-                 # resolution=(640, 480)):
-        resolution=(1920, 1080)):
+                 resolution=(640, 480)):
+        # resolution=(1920, 1080)):
 
         self._robot = robot
         self._sim = sim

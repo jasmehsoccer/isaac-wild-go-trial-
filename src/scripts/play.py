@@ -118,10 +118,10 @@ def main(argv):
     else:
         robot_class = go2.Go2
 
-    ans = input("Any Key...")
-    if ans in ['y', 'Y']:
-        import pdb
-        pdb.set_trace()
+    # ans = input("Any Key...")
+    # if ans in ['y', 'Y']:
+    #     import pdb
+    #     pdb.set_trace()
 
     robot = robot_class(num_envs=FLAGS.num_envs,
                         init_positions=get_init_positions(
@@ -133,10 +133,7 @@ def main(argv):
                         motor_control_mode=MotorControlMode.HYBRID)
 
     mean_pos = torch.min(robot.base_position_world, dim=0)[0].cpu().numpy() + np.array([-2.5, -2.5, 2.5])
-    # mean_pos = torch.min(self.base_position_world,
-    #                      dim=0)[0].cpu().numpy() + np.array([0.5, -1., 0.])
     target_pos = torch.mean(robot.base_position_world, dim=0).cpu().numpy() + np.array([0., 2., -0.5])
-    print(f"target_pos: {target_pos}")
     cam_pos = gymapi.Vec3(*mean_pos)
     cam_target = gymapi.Vec3(*target_pos)
     robot._gym.viewer_camera_look_at(viewer, None, cam_pos, cam_target)
@@ -288,21 +285,6 @@ def main(argv):
                 pickle.dump(logs, fh)
             print(f"Data logged to: {output_path}")
 
-        # import pdb
-        # pdb.set_trace()
-        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-        out = cv2.VideoWriter("output.mp4", fourcc, 30, (640, 480))
-        out2 = cv2.VideoWriter("output2.mp4", fourcc, 30, (640, 480))
-        for i in range(len(robot._rgb_frames)):
-            out.write(robot._rgb_frames[i])
-            # max_depth = 10.0
-            # depth_map = robot._dep_frames[i]
-            # depth_normalized = (depth_map / max_depth * 255).astype(np.uint8)
-            out2.write(robot._dep_frames[i])
-            # out2.write(depth_normalized)
-        out.release()
-        out2.release()
-        cv2.destroyAllWindows()
 
 if __name__ == "__main__":
     app.run(main)
