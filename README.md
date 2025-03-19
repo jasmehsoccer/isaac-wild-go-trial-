@@ -78,9 +78,12 @@ cd extern/rsl_rl && pip install -e .
    mv go2_interface* ../../..
    ```
 
-## Runtime Learning Framework
+## Runtime Learning in the Wild
 
 ---
+
+[//]: # (<p align="center">)
+[//]: # ( <img src="./docs/scene.png" alt="rlm"/> )
 
 ### 📍 Navigation
 
@@ -108,9 +111,6 @@ python -m src.scripts.play --use_gpu=True --show_gui=True --num_envs=1
 The locomotion control module provides real-time response in safety-critical systems, effectively
 handling unforeseen incidents arising from unknown environments.
 
-[//]: # (<p align="center">)
-
-[//]: # ( <img src="./docs/scene.png" height="440" alt="rlm"/> )
 
 #### 1️⃣ Safety Assurance (Runtime Learning)
 
@@ -139,19 +139,6 @@ on wild, uneven terrain is demonstrated:
 |-------------------------------------------------------------|------------------------------------------------------------|
 | <img src="./docs/rlm_go2_push.gif" height="245" alt="rlm"/> | <img src="./docs/fixed_model.gif" height="245" alt="rlm"/> |
 
-[//]: # (- **Runtime Learning:**)
-
-[//]: # ()
-
-[//]: # (The **Runtime Learning Machine** facilitates the rapid adaptation of the quadrupedal Go2 robot to unseen environments:)
-
-[//]: # ()
-
-[//]: # (```bash)
-
-[//]: # (python -m src.scripts.ddpg.train --use_gpu=True --enable_ha_teacher=True)
-
-[//]: # (```)
 
 ## ⏳ To Do ##
 
