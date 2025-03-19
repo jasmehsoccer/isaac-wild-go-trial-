@@ -248,7 +248,7 @@ def main(argv):
                      foot_contact_force=robot.foot_contact_forces,
                      desired_swing_foot_position=swing_leg_controller.desired_foot_positions,
                      desired_acc_body_frame=desired_acc,
-                     desired_vx=torque_optimizer.desired_linear_velocity[:, 0],
+                     desired_vx=desired_vx,
                      desired_wz=desired_wz,
                      desired_com_height=torque_optimizer.desired_base_position[:, 2].cpu(),
                      ha_action=desired_acc,

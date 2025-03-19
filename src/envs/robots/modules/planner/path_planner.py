@@ -12,7 +12,7 @@ from src.envs.robots.modules.planner.FMM import FMMPlanner
 from src.envs.robots.modules.planner.spline import Spline
 from src.envs.robots.modules.planner.utils import get_shortest_path, path_plot
 
-GOALS = [(49, 1.3), (52, -0.65), (55, -1.8), (57.5, 0.5)]
+GOALS = [(49, 1.3), (52, -0.6), (55.3, -2), (58.5, 0.5)]
 
 
 class PathPlanner:

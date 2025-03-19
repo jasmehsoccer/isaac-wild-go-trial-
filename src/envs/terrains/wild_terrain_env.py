@@ -116,7 +116,7 @@ class WildTerrainEnv:
         offset_y = 0
         # Big Mountain Rocks
         actor1 = load_stone_asset(self._gym, self._sim, env=env, name="Mountain Rock1", fix_base_link=False,
-                                  pos=(25.3 + offset_x, -1.5 + offset_y, 0.1), rot=(0, 0, 1, 0), scale=1.25)
+                                  pos=(25.7 + offset_x, -1.5 + offset_y, 0.1), rot=(0, 0, 1, 0), scale=1.25)
         actor2 = load_stone_asset(self._gym, self._sim, env=env, name="Mountain Rock2", fix_base_link=False,
                                   pos=(14.5 + offset_x, 2.2 + offset_y, 0.1), rot=(0.3, 0.2, 0.1, 1), scale=1.3)
         actor3 = load_stone_asset(self._gym, self._sim, env=env, name="Mountain Rock3", fix_base_link=False,
@@ -138,7 +138,7 @@ class WildTerrainEnv:
         actor11 = load_stone_asset(self._gym, self._sim, env=env, name="Mountain Rock11", fix_base_link=False,
                                    pos=(19 + offset_x, -4 + offset_y, 0.1), rot=(-0.3, 0, -0.8, 0), scale=1.15)
         actor12 = load_stone_asset(self._gym, self._sim, env=env, name="Mountain Rock12", fix_base_link=False,
-                                   pos=(24.1 + offset_x, -3 + offset_y, 0.1), rot=(-0.2, 0.8, 0.8, 0), scale=1.75)
+                                   pos=(24.4 + offset_x, -3 + offset_y, 0.1), rot=(-0.2, 0.8, 0.8, 0), scale=1.75)
 
         self._actors.append(actor1)
         self._actors.append(actor2)
