@@ -49,7 +49,7 @@ flags.DEFINE_bool("use_real_robot", False, "whether to use real robot.")
 flags.DEFINE_integer("num_envs", 1, "number of environments to evaluate in parallel.")
 flags.DEFINE_bool("save_traj", True, "whether to save trajectory.")
 flags.DEFINE_bool("use_contact_sensor", True, "whether to use contact sensor.")
-flags.DEFINE_float("total_time_secs", 10., "total amount of time to run the controller.")
+flags.DEFINE_float("total_time_secs", 100., "total amount of time to run the controller.")
 # config_flags.DEFINE_config_file("config", "src/configs/wild_env_config.py", "experiment configuration.")
 
 FLAGS = flags.FLAGS
@@ -165,7 +165,7 @@ def main(argv):
                           num_envs=FLAGS.num_envs,
                           device=device)
     init_map_flag = True
-    grace_period = 200
+    grace_period = 100
     grace_cnt = 0
     robot.reset()
     planner.reset()

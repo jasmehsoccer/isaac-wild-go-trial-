@@ -20,8 +20,8 @@ class RGBDCamera:
                  env: Any,
                  viewer: Any,
                  attached_rigid_body_index_in_env,
-                 resolution=(640, 480)):
-        # resolution=(1920, 1080)):
+                 # resolution=(640, 480)):
+        resolution=(1920, 1080)):
 
         self._robot = robot
         self._sim = sim
@@ -171,8 +171,8 @@ class RGBDCamera:
                 "The depth image does not have enough unique finite values for a valid replacement.")
 
         # The second smallest value
-        second_smallest = unique_values[1]
-        # second_smallest = -255
+        # second_smallest = unique_values[1]
+        second_smallest = -500
 
         # Replace `inf` values with the second-smallest value
         result = np.copy(depth_image)

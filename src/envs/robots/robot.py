@@ -65,7 +65,8 @@ class Robot:
         self._robot_actors_global_indices = []
         self._robot_rigid_body_global_indices = []
 
-        self.record_video = True  # Record a video or not
+        self.record_video = True    # Record a video or not
+        self.view_cam_fixed = False  # Fixed the viewer camera or not
 
         if "cuda" in self._device:
             torch._C._jit_set_profiling_mode(False)
@@ -223,8 +224,6 @@ class Robot:
         self._gym.set_actor_rigid_shape_properties(self._envs[env_id],
                                                    self._robot_actors[env_id],
                                                    rigid_shape_props)
-        # import pdb
-        # pdb.set_trace()
 
     def set_foot_frictions(self, friction_coefs, env_ids=None):
         if env_ids is None:
@@ -679,15 +678,8 @@ class Robot:
                         if self._gym.query_viewer_has_closed(self._viewer):
                             sys.exit()
 
-            # mean_pos = torch.min(self.base_position_world,
-            #                      dim=0)[0].cpu().numpy() + np.array([-2.5, 2.5, 2.5]) * 0.6
-            # # mean_pos = torch.min(self.base_position_world,
-            # #                      dim=0)[0].cpu().numpy() + np.array([0.5, -1., 0.])
-            # target_pos = torch.mean(self.base_position_world,
-            #                         dim=0).cpu().numpy() + np.array([0., 0., -0.5])
-            # cam_pos = gymapi.Vec3(*mean_pos)
-            # cam_target = gymapi.Vec3(*target_pos)
-            # self._gym.viewer_camera_look_at(self._viewer, None, cam_pos, cam_target)
+            if self.view_cam_fixed:
+                self.fix_view_camera()      # Fix the viewer camera for each frame
 
             # if self._device != "cpu":
             #     self._gym.fetch_results(self._sim, True)
@@ -706,3 +698,19 @@ class Robot:
                 rgb_img, depth_img = self._camera_sensors[0].get_current_frame()
                 self._rgb_frames.append(rgb_img)  # RGB Frame
                 self._dep_frames.append(depth_img)  # Depth Frame
+
+    def fix_view_camera(self):
+
+        # local_transform.r = gymapi.Quat.from_axis_angle(gymapi.Vec3(0, 1, 0), np.radians(25.0))
+
+        mean_pos = torch.min(self.base_position_world,
+                             dim=0)[0].cpu().numpy() + np.array([-3, 0, 4])
+        target_pos = torch.mean(self.base_position_world,
+                                dim=0).cpu().numpy() + np.array([5., 0., -0.5])
+        cam_pos = gymapi.Vec3(*mean_pos)
+        cam_target = gymapi.Vec3(*target_pos)
+        self._gym.viewer_camera_look_at(self._viewer, None, cam_pos, cam_target)
+
+        # cam_transform = gymapi.Transform()
+        # cam_transform.p = gymapi.Vec3(*mean_pos)
+        # cam_transform.r = gymapi.Quat.from_axis_angle(gymapi.Vec3(0, 1, 0), np.radians(25.0))

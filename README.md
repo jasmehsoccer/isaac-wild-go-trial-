@@ -84,21 +84,22 @@ cd extern/rsl_rl && pip install -e .
 
 ### 📍 Navigation
 
-[//]: # (<p align="center">)
-
-[//]: # (  <img src="./docs/bev_map.png" height="325" alt="scene"/> )
-
-[//]: # (  <img src="./docs/occupancy_map.png" height="325" alt="scene"/> )
-
-[//]: # (  <img src="./docs/costmap.png" height="325" alt="scene"/> )
-
-[//]: # ( <br><b>Fig 1. Map Generation Pipeline &#40;left to right -- BEV Map, Occupancy Map, Cost Map&#41;</b>)
-
-[//]: # (</p>)
+**Map Generation Pipeline:** Exterioception (Depth) ➡️ BEV Map ➡️ Occupancy Map ➡️ Cost Map
 
 | BEV Map                                      | Occupancy Map                                      | Cost Map                                     |
 |----------------------------------------------|----------------------------------------------------|----------------------------------------------|
 | <img src="./docs/bev_map.png" height="330"/> | <img src="./docs/occupancy_map.png" height="330"/> | <img src="./docs/costmap.png" height="330"/> |
+
+Quadruped navigates through the wild environment alongside all the waypoints:
+
+```bash
+python -m src.scripts.play --use_gpu=True --total_time_secs=50
+```
+
+| Navigating in the Wild Environment                 | Depth Camera Image                                   |
+|----------------------------------------------------|------------------------------------------------------|
+| <img src="./docs/nav.gif" height="245" alt="rlm"/> | <img src="./docs/depth.gif" height="245" alt="rlm"/> |
+
 
 ### 🦿 Locomotion
 
@@ -157,7 +158,8 @@ on wild, uneven terrain is demonstrated:
 <!-- * [x] Add BEV map to the repo -->
 <!-- * [x] Fast Marching Method (FMM) implementation -->
 
-* [-] Incorporate more challenging scenarios
+* [ ] Code Refactorization
+* [ ] Incorporate more challenging scenarios
     * [x] Dense forests (sandy terrain, trees)
     * [ ] inclined staircases, and rainy conditions
 * [ ] Go2 real robot deployment
