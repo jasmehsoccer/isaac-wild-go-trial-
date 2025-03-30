@@ -10,7 +10,7 @@
 
 This repo implements the **Runtime Learning Framework** on the Unitree-Go2 robot for the wild environments in Nivida
 IsaacGym. In this framework, a closed-loop system is established for the quadruped robot by incorporating the *Sensing*,
-*Navigation/Planning* and *Locomotion Control* module.
+*Navigation-Planning*, and *Locomotion Control* module.
 <p align="center">
  <img src="./docs/runtime-learning.png" height="460" alt="scene"/> 
  <br><b>Fig 1. Runtime Learning Framework -- A Close-loop System for the Quadruped Robot</b>
