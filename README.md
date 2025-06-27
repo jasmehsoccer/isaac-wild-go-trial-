@@ -182,14 +182,17 @@ Please star or cite below papers if you find this repo helpful 🙏
 ```
 
 ```
-@misc{cao2024simplexenabledsafecontinuallearning,
-      title={Simplex-enabled Safe Continual Learning Machine}, 
-      author={Hongpeng Cao and Yanbing Mao and Yihao Cai and Lui Sha and Marco Caccamo},
-      year={2024},
-      eprint={2409.05898},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2409.05898}, 
+@article{10.1145/3744351,
+author = {Cai, Yihao and Mao, Yanbing and Sha, Lui and Cao, Hongpeng and Caccamo, Marco},
+title = {Runtime Learning Machine},
+year = {2025},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+issn = {2378-962X},
+url = {https://doi.org/10.1145/3744351},
+doi = {10.1145/3744351},
+journal = {ACM Trans. Cyber-Phys. Syst.},
+keywords = {Runtime Learning, Safety, Phy-DRL, Real-time Patch, Unknown Unknowns, Sim2Real Gap}
 }
 ```
 
