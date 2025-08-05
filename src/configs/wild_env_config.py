@@ -13,9 +13,27 @@ def get_env_config():
 
     config = ConfigDict()
 
-    # Observation: [dis2goal, yaw_deviation, height, roll, pitch, yaw, vx, vy, vz, wx, wy, wz]
-    config.observation_lb = np.array([0., 0., 0., -3.14, -3.14, -3.14, -1., -1., -1., -3.14, -3.14, -3.14])
-    config.observation_ub = np.array([10., 3.14, 0.6, 3.14, 3.14, 3.14, 1., 1., 1., 3.14, 3.14, 3.14])
+    # Observation: [dis2goal, yaw_deviation, height, roll, pitch, yaw, vx, vy, vz, wx, wy, wz, 
+    #              terrain_type_FL, terrain_type_FR, terrain_type_RR, terrain_type_RL,
+    #              friction_FL, friction_FR, friction_RR, friction_RL,
+    #              confidence_FL, confidence_FR, confidence_RR, confidence_RL,
+    #              force_FL, force_FR, force_RR, force_RL,
+    #              contact_area_FL, contact_area_FR, contact_area_RR, contact_area_RL,
+    #              slip_FL, slip_FR, slip_RR, slip_RL]
+    config.observation_lb = np.array([0., 0., 0., -3.14, -3.14, -3.14, -1., -1., -1., -3.14, -3.14, -3.14,
+                                      0., 0., 0., 0.,  # terrain types (0-7)
+                                      0., 0., 0., 0.,  # friction coefficients (0-1)
+                                      0., 0., 0., 0.,  # confidence levels (0-1)
+                                      0., 0., 0., 0.,  # force magnitudes
+                                      0., 0., 0., 0.,  # contact areas
+                                      0., 0., 0., 0.]) # slip magnitudes
+    config.observation_ub = np.array([10., 3.14, 0.6, 3.14, 3.14, 3.14, 1., 1., 1., 3.14, 3.14, 3.14,
+                                      7., 7., 7., 7.,  # terrain types (0-7)
+                                      1., 1., 1., 1.,  # friction coefficients (0-1)
+                                      1., 1., 1., 1.,  # confidence levels (0-1)
+                                      1000., 1000., 1000., 1000.,  # force magnitudes
+                                      0.1, 0.1, 0.1, 0.1,  # contact areas
+                                      10., 10., 10., 10.]) # slip magnitudes
 
     # Action: [acc_vx, acc_vy, acc_vz, acc_wx, acc_wy, acc_wz]
     config.action_lb = np.array([-10., -10., -10., -20., -20., -20.])
@@ -115,6 +133,8 @@ def get_env_config():
         'distance_to_wp': 50,      # Distance to waypoint
         'reach_wp': 100,            # Reach waypoint
         'reach_goal': 500,         # Reach destination
+        'terrain_adaptation': 0.5,  # Reward for terrain-adaptive gait
+        'terrain_efficiency': 0.3,  # Reward for efficient locomotion on different terrains
         # 'com_height': 0.01,
     }
     reward_config.only_positive_rewards = True  # if true negative total rewards are clipped at zero (avoids early termination problems)

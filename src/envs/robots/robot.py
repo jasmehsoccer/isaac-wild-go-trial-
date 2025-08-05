@@ -12,6 +12,7 @@ import torch
 from src.configs.defaults import asset_options as asset_options_config
 from src.envs.robots.utils.rotation_utils import quat_to_rot_mat, get_euler_zyx_from_quaternion
 from src.envs.robots.modules.sensor.rgbd_camera import RGBDCamera
+from src.envs.robots.modules.sensor.tactile_sensor import TactileSensor
 from isaacgym.terrain_utils import *
 
 
@@ -77,6 +78,9 @@ class Robot:
 
         self._rgb_frames = []
         self._dep_frames = []
+
+        # Initialize tactile sensor
+        self._tactile_sensor = TactileSensor(num_envs=self._num_envs, device=self._device)
 
         self._init_buffers()
 
@@ -410,6 +414,9 @@ class Robot:
         # self._foot_positions = _foot_pos
         # print(f"foot_positions changed: {self._foot_positions}")
         # time.sleep(123)
+        
+        # Update tactile sensor with current contact data
+        self._update_tactile_sensor()
 
     def _update_foot_positions(self):
 
@@ -430,6 +437,26 @@ class Robot:
                     self._foot_positions_prev[i, leg_id] -= base_vel_body_frame[i] * dt[i]
 
         print(f"foot_contact_history: {self._foot_positions_prev}")
+
+    def _update_tactile_sensor(self):
+        """Update tactile sensor with current contact data."""
+        # Get contact forces and torques for feet
+        foot_contact_forces = self.foot_contact_forces
+        foot_contact_torques = torch.zeros_like(foot_contact_forces)  # Simplified - no torque data
+        
+        # Get foot positions and velocities
+        foot_positions = self.foot_positions_in_world_frame
+        foot_velocities = self.foot_velocities_in_world_frame
+        foot_contacts = self.foot_contacts
+        
+        # Update tactile sensor
+        self._tactile_sensor.update(
+            robot_contact_forces=foot_contact_forces,
+            robot_contact_torques=foot_contact_torques,
+            foot_positions=foot_positions,
+            foot_velocities=foot_velocities,
+            foot_contacts=foot_contacts
+        )
 
     def set_robot_base_color(self, color, env_ids=torch.arange(0, 1, device='cuda:0')):
         base_rigid_body_idx = 0
@@ -636,6 +663,10 @@ class Robot:
     @property
     def camera_sensor(self):
         return self._camera_sensors
+        
+    @property
+    def tactile_sensor(self):
+        return self._tactile_sensor
 
     def subscribe_viewer_keyboard_event(self):
         # self._gym.subscribe_viewer_keyboard_event(self._viewer, gymapi.KEY_ESCAPE, "QUIT")

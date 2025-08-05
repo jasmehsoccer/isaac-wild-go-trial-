@@ -13,6 +13,7 @@ import torch
 from src.configs.defaults import sim_config
 from src.envs.go2_rewards import Go2Rewards
 from src.envs.robots.modules.controller import raibert_swing_leg_controller, qp_torque_optimizer
+from src.envs.robots.modules.controller.adaptive_gait_controller import AdaptiveGaitController
 from src.envs.robots.modules.gait_generator import phase_gait_generator
 from src.envs.robots import go2_robot, go2
 from src.envs.robots.modules.planner.path_planner import PathPlanner
@@ -148,6 +149,9 @@ class Go2WildExploreEnv:
 
         # HA-Teacher
         self.ha_teacher = HATeacher(num_envs=self._num_envs, teacher_cfg=config.ha_teacher, device=self._device)
+
+        # Adaptive Gait Controller
+        self._adaptive_gait_controller = AdaptiveGaitController(num_envs=self._num_envs, device=self._device)
 
         # Gait scheduler
         self._gait_generator = phase_gait_generator.PhaseGaitGenerator(self._robot, self._config.gait)
@@ -388,6 +392,16 @@ class Go2WildExploreEnv:
             # import pdb
             # pdb.set_trace()
 
+            # Update adaptive gait controller with tactile sensor data
+            terrain_types = self._robot.tactile_sensor.detected_terrain_types
+            terrain_confidence = self._robot.tactile_sensor.terrain_confidence
+            friction_coefficients = self._robot.tactile_sensor.estimated_friction
+            
+            # Update gait parameters based on terrain
+            adapted_gait_params = self._adaptive_gait_controller.update_gait_parameters(
+                terrain_types, terrain_confidence, friction_coefficients
+            )
+            
             # HA-Teacher update
             self._robot.energy_2d = self.ha_teacher.update(self._torque_optimizer.tracking_error)
 
@@ -564,9 +578,14 @@ class Go2WildExploreEnv:
         distance_obs = self.goal_distance.unsqueeze(dim=-1)
         yaw_diff_obs = self.goal_yaw_difference.unsqueeze(dim=-1)
         robot_obs = self._torque_optimizer.tracking_error[:, 2:]
+        
+        # Get tactile sensor observations
+        terrain_obs = self._robot.tactile_sensor.get_terrain_observations()
+        contact_obs = self._robot.tactile_sensor.get_foot_contact_observations()
+        
         # desired_wz_obs = to_torch([self.desired_wz], device=self._device).unsqueeze(dim=-1)
 
-        obs = torch.concatenate((distance_obs, yaw_diff_obs, robot_obs), dim=1)
+        obs = torch.concatenate((distance_obs, yaw_diff_obs, robot_obs, terrain_obs, contact_obs), dim=1)
         # if self._config.get("observation_noise", None) is not None and (not self._use_real_robot):
         #     obs += torch.randn_like(obs) * self._config.observation_noise
         return obs

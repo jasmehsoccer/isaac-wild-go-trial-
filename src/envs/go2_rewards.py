@@ -98,6 +98,61 @@ class Go2Rewards:
         # print(foot_slipping)
         # input("Any Key...")
         return -foot_slipping
+        
+    def terrain_adaptation_reward(self):
+        """Reward for successful terrain adaptation based on tactile sensing."""
+        # Get terrain-aware reward modifier from adaptive gait controller
+        terrain_types = self._robot.tactile_sensor.detected_terrain_types
+        terrain_confidence = self._robot.tactile_sensor.terrain_confidence
+        friction_coefficients = self._robot.tactile_sensor.estimated_friction
+        
+        reward_modifier = self._env._adaptive_gait_controller.get_terrain_aware_reward_modifier(
+            terrain_types, terrain_confidence, friction_coefficients
+        )
+        
+        # Base reward for successful terrain detection
+        base_reward = torch.mean(terrain_confidence, dim=1)
+        
+        # Additional reward for appropriate gait adaptation
+        adaptation_reward = (reward_modifier - 1.0) * 0.5  # Scale down the modifier effect
+        
+        return base_reward + adaptation_reward
+        
+    def terrain_efficiency_reward(self):
+        """Reward for efficient locomotion on different terrains."""
+        # Get current terrain types and friction
+        terrain_types = self._robot.tactile_sensor.detected_terrain_types
+        friction_coefficients = self._robot.tactile_sensor.estimated_friction
+        
+        efficiency_reward = torch.zeros(self._num_envs, device=self._device)
+        
+        for env_id in range(self._num_envs):
+            avg_friction = torch.mean(friction_coefficients[env_id])
+            terrain_name = self._get_terrain_name(terrain_types[env_id, 0])  # Use first foot
+            
+            # Reward efficiency based on terrain type
+            if terrain_name in ["ice", "snow"] and avg_friction < 0.3:
+                # Reward conservative movement on slippery surfaces
+                speed = torch.norm(self._robot.base_velocity_body_frame[env_id, :2])
+                efficiency_reward[env_id] = torch.exp(-speed * 2.0)  # Reward slower, more careful movement
+            elif terrain_name in ["rock", "concrete"] and avg_friction > 0.7:
+                # Reward faster movement on stable surfaces
+                speed = torch.norm(self._robot.base_velocity_body_frame[env_id, :2])
+                efficiency_reward[env_id] = speed * 0.5  # Reward faster movement
+            elif terrain_name in ["sand", "mud"] and 0.3 <= avg_friction <= 0.7:
+                # Reward balanced movement on medium friction surfaces
+                speed = torch.norm(self._robot.base_velocity_body_frame[env_id, :2])
+                efficiency_reward[env_id] = torch.exp(-torch.abs(speed - 1.0))  # Reward moderate speed
+            else:
+                # Default reward for other terrains
+                efficiency_reward[env_id] = 0.0
+                
+        return efficiency_reward
+        
+    def _get_terrain_name(self, terrain_id: torch.Tensor) -> str:
+        """Convert terrain ID to name."""
+        terrain_names = ["concrete", "sand", "ice", "grass", "rock", "mud", "snow", "metal"]
+        return terrain_names[terrain_id.item()]
 
     def foot_clearance_reward(self, foot_height_thres=0.02):
         desired_contacts = self._gait_generator.desired_contact_state

@@ -86,7 +86,7 @@ class WildTerrainEnv:
         self._actors.append(actor)
 
         # Huge Mountain Rocks
-        self.load_mountain_rocks(env=env, offset_x=offset_x, offset_y=offset_y)
+        # self.load_mountain_rocks(env=env, offset_x=offset_x, offset_y=offset_y)  # Removed mountain rocks
 
         # Snow Rocks
         self.load_snow_rocks(env=env, offset_x=offset_x, offset_y=offset_y)
