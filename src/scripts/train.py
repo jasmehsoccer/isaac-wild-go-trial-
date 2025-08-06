@@ -7,14 +7,17 @@ import numpy as np
 import yaml
 from absl import app
 from absl import flags
+# from absl import logging
 from isaacgym import gymapi, gymutil
 import torch
 import cv2
 import os
 
 from datetime import datetime
+import os
+
 from ml_collections.config_flags import config_flags
-from rsl_rl.runners import OffPolicyRunner
+from rsl_rl.runners import OnPolicyRunner
 
 from src.configs.training import ddpg
 from src.envs import env_wrappers
@@ -51,15 +54,19 @@ def convert_numpy(obj):
 
 def capture_frame_from_gym(env):
     """Capture a frame from IsaacGym using OpenCV."""
+    # Get the current frame from IsaacGym
     env.robot._gym.step_graphics(env.robot._sim)
     env.robot._gym.draw_viewer(env.robot._viewer, env.robot._sim, True)
     
+    # Capture the frame from the viewer
     frame = env.robot._gym.get_viewer_image(env.robot._viewer, gymapi.IMAGE_COLOR)
     
+    # Convert to numpy array and reshape
     frame = np.array(frame, dtype=np.uint8)
-    frame = frame.reshape(FLAGS.video_height, FLAGS.video_width, 4)
-    frame = frame[:, :, :3]
+    frame = frame.reshape(FLAGS.video_height, FLAGS.video_width, 4)  # RGBA
+    frame = frame[:, :, :3]  # Convert RGBA to RGB
     
+    # Flip vertically (IsaacGym coordinates are flipped)
     frame = cv2.flip(frame, 0)
     
     return frame
@@ -108,12 +115,14 @@ def record_training_video(env, logdir, iteration, video_length=200):
 
 
 def main(argv):
-    del argv
-    logging.disable(logging.CRITICAL)
+
+    del argv  # unused
+    logging.disable(logging.CRITICAL)  # logging output
 
     device = "cuda" if FLAGS.use_gpu else "cpu"
     config = FLAGS.config
 
+    # Experimental name set
     if FLAGS.experiment_name:
         config.training.runner.experiment_name = FLAGS.experiment_name
 
@@ -124,21 +133,27 @@ def main(argv):
     with open(os.path.join(logdir, "config.yaml"), "w", encoding="utf-8") as f:
         f.write(config.to_yaml())
 
+    # Use DDPG
     config.training = ddpg.get_training_config()
 
+    # HA-Teacher module
     if FLAGS.enable_ha_teacher:
         config.environment.ha_teacher.enable = True
+        # config.environment.ha_teacher.chi = 0.1
+        # config.environment.ha_teacher.tau = 100
 
     env = config.env_class(num_envs=FLAGS.num_envs,
                            device=device,
                            config=config.environment,
                            show_gui=FLAGS.show_gui,
                            use_real_robot=FLAGS.use_real_robot)
+    # Robot pusher
     if FLAGS.enable_pusher:
         env._pusher.push_enable = True
 
     env = env_wrappers.RangeNormalize(env)
 
+    # Set up camera for initial view
     mean_pos = torch.min(env.robot.base_position_world, dim=0)[0].cpu().numpy() + np.array([-2.5, -2.5, 2.5])
     target_pos = torch.mean(env.robot.base_position_world, dim=0).cpu().numpy() + np.array([0., 2., -0.5])
     cam_pos = gymapi.Vec3(*mean_pos)
@@ -147,26 +162,33 @@ def main(argv):
     env.robot._gym.step_graphics(env.robot._sim)
     env.robot._gym.draw_viewer(env.robot._viewer, env.robot._sim, True)
 
-    ddpg_runner = OffPolicyRunner(env, config.training, logdir, device=device)
+    ddpg_runner = OnPolicyRunner(env, config.training, logdir, device=device)
     if FLAGS.load_checkpoint:
         ddpg_runner.load(FLAGS.load_checkpoint)
     
+    # Custom training loop with video recording
     if FLAGS.record_videos:
         print(f"Training with video recording every {FLAGS.video_interval} iterations")
         print(f"Videos will be saved to: {os.path.join(logdir, 'videos')}")
         print(f"Video settings: {FLAGS.video_width}x{FLAGS.video_height} @ {FLAGS.video_fps} FPS")
         
+        # Record initial video
         record_training_video(env, logdir, 0, FLAGS.video_length)
         
+        # Custom training loop
         for iteration in range(config.training.runner.max_iterations):
+            # Train for one iteration
             ddpg_runner.learn(num_learning_iterations=1, init_at_random_ep_len=False)
             
+            # Record video periodically
             if (iteration + 1) % FLAGS.video_interval == 0:
                 record_training_video(env, logdir, iteration + 1, FLAGS.video_length)
                 
+            # Print progress
             if (iteration + 1) % 100 == 0:
                 print(f"Training progress: {iteration + 1}/{config.training.runner.max_iterations}")
     else:
+        # Standard training without video recording
         ddpg_runner.learn(num_learning_iterations=config.training.runner.max_iterations,
                           init_at_random_ep_len=False)
 
